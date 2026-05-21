@@ -60,6 +60,7 @@ model Document {
   description String?
   status      DocumentStatus @default(DRAFT)
   fileUrl     String?        @map("file_url")
+  expiresAt   DateTime?      @map("expires_at") @db.Date
   ownerId     String         @map("owner_id")
   owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt   DateTime       @default(now()) @map("created_at")
@@ -67,6 +68,7 @@ model Document {
 
   @@index([ownerId])
   @@index([status])
+  @@index([expiresAt])
   @@map("documents")
 }
 
