@@ -43,6 +43,7 @@ export class DocumentsController {
         typeof req.body?.description === "string"
           ? req.body.description
           : undefined,
+      expiresAt: req.body?.expiresAt,
       ownerId: this.getAuth(req).id,
       storedFilename: req.file.filename,
     });
@@ -76,6 +77,7 @@ export class DocumentsController {
             : undefined,
         status:
           req.body?.status !== undefined ? String(req.body.status) : undefined,
+        expiresAt: req.body?.expiresAt,
         storedFilename: req.file?.filename,
       },
     );

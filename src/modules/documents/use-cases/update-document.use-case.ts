@@ -3,6 +3,7 @@ import { toDocumentDto } from "../mappers/document.mapper.js";
 import type { IDocumentRepository } from "../repositories/document.repository.js";
 import type { FileStorageService } from "../services/file-storage.service.js";
 import type { DocumentDto, DocumentStatus } from "../types/document.types.js";
+import { parseExpiresAt } from "../utils/parse-expires-at.js";
 
 const ALLOWED_STATUS: DocumentStatus[] = [
   "DRAFT",
@@ -24,6 +25,7 @@ export class UpdateDocumentUseCase {
       title?: string;
       description?: string | null;
       status?: string;
+      expiresAt?: unknown;
       storedFilename?: string;
     },
   ): Promise<DocumentDto> {
@@ -38,6 +40,7 @@ export class UpdateDocumentUseCase {
       description?: string | null;
       status?: DocumentStatus;
       fileUrl?: string;
+      expiresAt?: Date | null;
     } = {};
 
     if (input.title !== undefined) {
@@ -57,6 +60,10 @@ export class UpdateDocumentUseCase {
         throw new AppError(400, "Status inválido", "INVALID_STATUS");
       }
       data.status = input.status as DocumentStatus;
+    }
+
+    if (input.expiresAt !== undefined) {
+      data.expiresAt = parseExpiresAt(input.expiresAt) ?? null;
     }
 
     if (input.storedFilename) {

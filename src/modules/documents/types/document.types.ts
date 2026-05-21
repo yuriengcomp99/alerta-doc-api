@@ -6,6 +6,7 @@ export type DocumentDto = {
   description: string | null;
   status: DocumentStatus;
   fileUrl: string | null;
+  expiresAt: string | null;
   ownerId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +17,7 @@ export type CreateDocumentInput = {
   description?: string;
   ownerId: string;
   fileUrl: string;
+  expiresAt?: Date | null;
 };
 
 export type UpdateDocumentInput = {
@@ -24,4 +26,5 @@ export type UpdateDocumentInput = {
   status?: DocumentStatus;
   filePath?: string;
   fileUrl?: string;
+  expiresAt?: Date | null;
 };

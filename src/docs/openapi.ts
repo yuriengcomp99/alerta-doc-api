@@ -145,9 +145,24 @@ export const openApiSpec = {
             enum: ["DRAFT", "PENDING", "APPROVED", "REJECTED"],
           },
           fileUrl: { type: "string", nullable: true, example: "/uploads/arquivo.pdf" },
+          expiresAt: {
+            type: "string",
+            format: "date",
+            nullable: true,
+            description: "Data de validade/vencimento do documento (somente dia, YYYY-MM-DD).",
+            example: "2026-12-31",
+          },
           ownerId: { type: "string", format: "uuid" },
-          createdAt: { type: "string", format: "date-time" },
-          updatedAt: { type: "string", format: "date-time" },
+          createdAt: {
+            type: "string",
+            format: "date-time",
+            description: "Data/hora de criação (UTC).",
+          },
+          updatedAt: {
+            type: "string",
+            format: "date-time",
+            description: "Data/hora da última atualização (UTC).",
+          },
         },
       },
       DocumentResponse: {
@@ -171,7 +186,31 @@ export const openApiSpec = {
         properties: {
           title: { type: "string" },
           description: { type: "string" },
+          expiresAt: {
+            type: "string",
+            format: "date",
+            description: "Data de validade (YYYY-MM-DD). Opcional.",
+            example: "2026-12-31",
+          },
           file: { type: "string", format: "binary" },
+        },
+      },
+      DocumentUpdateJson: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          description: { type: "string", nullable: true },
+          status: {
+            type: "string",
+            enum: ["DRAFT", "PENDING", "APPROVED", "REJECTED"],
+          },
+          expiresAt: {
+            type: "string",
+            format: "date",
+            nullable: true,
+            description: "Nova data de validade (YYYY-MM-DD). Envie null para remover.",
+            example: "2026-06-30",
+          },
         },
       },
       DocumentUpdateMultipart: {
@@ -182,6 +221,12 @@ export const openApiSpec = {
           status: {
             type: "string",
             enum: ["DRAFT", "PENDING", "APPROVED", "REJECTED"],
+          },
+          expiresAt: {
+            type: "string",
+            format: "date",
+            description: "Data de validade (YYYY-MM-DD). Opcional.",
+            example: "2026-12-31",
           },
           file: { type: "string", format: "binary" },
         },
@@ -377,6 +422,8 @@ export const openApiSpec = {
       post: {
         tags: ["Documents"],
         summary: "Criar documento",
+        description:
+          "Envia multipart/form-data. Campo opcional `expiresAt` (YYYY-MM-DD) define a data de validade.",
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
@@ -423,7 +470,8 @@ export const openApiSpec = {
       patch: {
         tags: ["Documents"],
         summary: "Atualizar documento",
-        description: "JSON ou multipart/form-data (arquivo opcional).",
+        description:
+          "JSON ou multipart/form-data (arquivo opcional). Permite alterar `expiresAt` (YYYY-MM-DD); em JSON use `null` para limpar a data.",
         security: [{ bearerAuth: [] }],
         parameters: [
           { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } },
@@ -434,17 +482,7 @@ export const openApiSpec = {
               schema: { $ref: "#/components/schemas/DocumentUpdateMultipart" },
             },
             "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  title: { type: "string" },
-                  description: { type: "string" },
-                  status: {
-                    type: "string",
-                    enum: ["DRAFT", "PENDING", "APPROVED", "REJECTED"],
-                  },
-                },
-              },
+              schema: { $ref: "#/components/schemas/DocumentUpdateJson" },
             },
           },
         },

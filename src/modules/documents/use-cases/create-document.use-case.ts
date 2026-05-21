@@ -3,6 +3,7 @@ import { toDocumentDto } from "../mappers/document.mapper.js";
 import type { IDocumentRepository } from "../repositories/document.repository.js";
 import type { FileStorageService } from "../services/file-storage.service.js";
 import type { DocumentDto } from "../types/document.types.js";
+import { parseExpiresAt } from "../utils/parse-expires-at.js";
 
 export class CreateDocumentUseCase {
   constructor(
@@ -13,6 +14,7 @@ export class CreateDocumentUseCase {
   async execute(input: {
     title: string;
     description?: string;
+    expiresAt?: unknown;
     ownerId: string;
     storedFilename: string;
   }): Promise<DocumentDto> {
@@ -28,6 +30,7 @@ export class CreateDocumentUseCase {
       description: input.description?.trim() || undefined,
       ownerId: input.ownerId,
       fileUrl,
+      expiresAt: parseExpiresAt(input.expiresAt) ?? null,
     });
 
     return toDocumentDto(document);
