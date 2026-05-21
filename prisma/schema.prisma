@@ -68,3 +68,13 @@ model Document {
   @@index([status])
   @@map("documents")
 }
+
+model Notification {
+  id   String   @id @default(uuid())
+  msg  String
+  data DateTime @default(now())
+  read Boolean  @default(false)
+
+  @@index([read])
+  @@map("notifications")
+}
