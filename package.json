@@ -25,20 +25,25 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "append-field": "^2.0.0",
     "bcryptjs": "^3.0.3",
+    "busboy": "^1.6.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "multer": "^2.1.1",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "type-is": "^2.1.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/busboy": "^1.5.4",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.1.0",
     "@types/node": "^25.9.1",
     "@types/swagger-ui-express": "^4.1.8",
+    "@types/type-is": "^1.6.7",
     "prisma": "^6.19.3",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3"

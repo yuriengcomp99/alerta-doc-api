@@ -180,21 +180,6 @@ export const openApiSpec = {
           },
         },
       },
-      DocumentMultipart: {
-        type: "object",
-        required: ["title", "file"],
-        properties: {
-          title: { type: "string" },
-          description: { type: "string" },
-          expiresAt: {
-            type: "string",
-            format: "date",
-            description: "Data de validade (YYYY-MM-DD). Opcional.",
-            example: "2026-12-31",
-          },
-          file: { type: "string", format: "binary" },
-        },
-      },
       DocumentUpdateJson: {
         type: "object",
         properties: {
@@ -211,24 +196,6 @@ export const openApiSpec = {
             description: "Nova data de validade (YYYY-MM-DD). Envie null para remover.",
             example: "2026-06-30",
           },
-        },
-      },
-      DocumentUpdateMultipart: {
-        type: "object",
-        properties: {
-          title: { type: "string" },
-          description: { type: "string" },
-          status: {
-            type: "string",
-            enum: ["DRAFT", "PENDING", "APPROVED", "REJECTED"],
-          },
-          expiresAt: {
-            type: "string",
-            format: "date",
-            description: "Data de validade (YYYY-MM-DD). Opcional.",
-            example: "2026-12-31",
-          },
-          file: { type: "string", format: "binary" },
         },
       },
     },
@@ -429,7 +396,37 @@ export const openApiSpec = {
           required: true,
           content: {
             "multipart/form-data": {
-              schema: { $ref: "#/components/schemas/DocumentMultipart" },
+              schema: {
+                type: "object",
+                required: ["title", "file"],
+                properties: {
+                  title: {
+                    type: "string",
+                    description: "Título do documento",
+                    example: "Contrato 2026",
+                  },
+                  description: {
+                    type: "string",
+                    description: "Descrição opcional",
+                  },
+                  expiresAt: {
+                    type: "string",
+                    description:
+                      "Data de validade do documento (YYYY-MM-DD). Opcional.",
+                    example: "2026-12-31",
+                  },
+                  file: {
+                    type: "string",
+                    format: "binary",
+                    description: "PDF, imagem, DOC ou DOCX (máx. 10MB)",
+                  },
+                },
+              },
+              encoding: {
+                title: { contentType: "text/plain" },
+                description: { contentType: "text/plain" },
+                expiresAt: { contentType: "text/plain" },
+              },
             },
           },
         },
@@ -479,7 +476,30 @@ export const openApiSpec = {
         requestBody: {
           content: {
             "multipart/form-data": {
-              schema: { $ref: "#/components/schemas/DocumentUpdateMultipart" },
+              schema: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  description: { type: "string" },
+                  status: {
+                    type: "string",
+                    enum: ["DRAFT", "PENDING", "APPROVED", "REJECTED"],
+                  },
+                  expiresAt: {
+                    type: "string",
+                    description:
+                      "Data de validade (YYYY-MM-DD). Deixe vazio para não alterar.",
+                    example: "2026-12-31",
+                  },
+                  file: { type: "string", format: "binary" },
+                },
+              },
+              encoding: {
+                title: { contentType: "text/plain" },
+                description: { contentType: "text/plain" },
+                status: { contentType: "text/plain" },
+                expiresAt: { contentType: "text/plain" },
+              },
             },
             "application/json": {
               schema: { $ref: "#/components/schemas/DocumentUpdateJson" },

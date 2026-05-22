@@ -24,7 +24,6 @@ export type UpdateDocumentInput = {
   title?: string;
   description?: string | null;
   status?: DocumentStatus;
-  filePath?: string;
   fileUrl?: string;
   expiresAt?: Date | null;
 };

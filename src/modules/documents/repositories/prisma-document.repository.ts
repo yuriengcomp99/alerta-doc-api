@@ -1,9 +1,8 @@
 import { prisma } from "../../../lib/prisma.js";
-import type { DocumentRecord } from "../mappers/document.mapper.js";
+import type { DocumentRecord } from "../document.mapper.js";
 import type { CreateDocumentInput, UpdateDocumentInput } from "../types/document.types.js";
-import type { IDocumentRepository } from "./document.repository.js";
 
-const documentRecordSelect = {
+const select = {
   id: true,
   title: true,
   description: true,
@@ -15,8 +14,8 @@ const documentRecordSelect = {
   updatedAt: true,
 } as const;
 
-export class PrismaDocumentRepository implements IDocumentRepository {
-  async create(data: CreateDocumentInput): Promise<DocumentRecord> {
+export class PrismaDocumentRepository {
+  create(data: CreateDocumentInput): Promise<DocumentRecord> {
     return prisma.document.create({
       data: {
         title: data.title,
@@ -25,26 +24,23 @@ export class PrismaDocumentRepository implements IDocumentRepository {
         fileUrl: data.fileUrl,
         ...(data.expiresAt !== undefined ? { expiresAt: data.expiresAt } : {}),
       },
-      select: documentRecordSelect,
+      select,
     });
   }
 
-  async findById(id: string): Promise<DocumentRecord | null> {
-    return prisma.document.findUnique({
-      where: { id },
-      select: documentRecordSelect,
-    });
+  findById(id: string): Promise<DocumentRecord | null> {
+    return prisma.document.findUnique({ where: { id }, select });
   }
 
-  async findByOwner(ownerId: string): Promise<DocumentRecord[]> {
+  findByOwner(ownerId: string): Promise<DocumentRecord[]> {
     return prisma.document.findMany({
       where: { ownerId },
       orderBy: { createdAt: "desc" },
-      select: documentRecordSelect,
+      select,
     });
   }
 
-  async update(id: string, data: UpdateDocumentInput): Promise<DocumentRecord> {
+  update(id: string, data: UpdateDocumentInput): Promise<DocumentRecord> {
     return prisma.document.update({
       where: { id },
       data: {
@@ -54,11 +50,11 @@ export class PrismaDocumentRepository implements IDocumentRepository {
         ...(data.fileUrl !== undefined ? { fileUrl: data.fileUrl } : {}),
         ...(data.expiresAt !== undefined ? { expiresAt: data.expiresAt } : {}),
       },
-      select: documentRecordSelect,
+      select,
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await prisma.document.delete({ where: { id } });
+  delete(id: string): Promise<void> {
+    return prisma.document.delete({ where: { id } }).then(() => undefined);
   }
 }

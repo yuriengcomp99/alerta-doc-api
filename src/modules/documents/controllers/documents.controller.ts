@@ -1,15 +1,10 @@
 import type { Request, Response } from "express";
+import { formField, getDocumentFile } from "../../../lib/upload.js";
 import { AppError } from "../../../middleware/http.js";
 import type { AuthenticatedRequest } from "../../../middleware/require-auth.js";
-import type { CreateDocumentUseCase } from "../use-cases/create-document.use-case.js";
-import type { DeleteDocumentUseCase } from "../use-cases/delete-document.use-case.js";
-import type { GetDocumentUseCase } from "../use-cases/get-document.use-case.js";
-import type { ListDocumentsUseCase } from "../use-cases/list-documents.use-case.js";
-import type { UpdateDocumentUseCase } from "../use-cases/update-document.use-case.js";
+import type { DocumentsService } from "../documents.service.js";
 
-type DocRequest = Request & Partial<AuthenticatedRequest> & {
-  file?: Express.Multer.File;
-};
+type DocRequest = Request & Partial<AuthenticatedRequest>;
 
 function paramId(req: Request): string {
   const id = req.params.id;
@@ -17,76 +12,58 @@ function paramId(req: Request): string {
 }
 
 export class DocumentsController {
-  constructor(
-    private readonly createDocument: CreateDocumentUseCase,
-    private readonly listDocuments: ListDocumentsUseCase,
-    private readonly getDocument: GetDocumentUseCase,
-    private readonly updateDocument: UpdateDocumentUseCase,
-    private readonly deleteDocument: DeleteDocumentUseCase,
-  ) {}
+  constructor(private readonly documents: DocumentsService) {}
 
-  private getAuth(req: DocRequest) {
+  private ownerId(req: DocRequest): string {
     if (!req.auth) {
       throw new AppError(401, "Não autenticado", "UNAUTHORIZED");
     }
-    return req.auth;
+    return req.auth.id;
   }
 
   async create(req: DocRequest, res: Response) {
-    if (!req.file) {
+    const file = getDocumentFile(req);
+    if (!file) {
       throw new AppError(400, "Arquivo é obrigatório", "FILE_REQUIRED");
     }
 
-    const document = await this.createDocument.execute({
-      title: String(req.body?.title ?? ""),
-      description:
-        typeof req.body?.description === "string"
-          ? req.body.description
-          : undefined,
-      expiresAt: req.body?.expiresAt,
-      ownerId: this.getAuth(req).id,
-      storedFilename: req.file.filename,
+    const document = await this.documents.create({
+      title: formField(req.body, "title") ?? "",
+      description: formField(req.body, "description"),
+      expiresAt: formField(req.body, "expiresAt"),
+      ownerId: this.ownerId(req),
+      storedFilename: file.filename,
     });
 
     res.status(201).json({ document });
   }
 
   async list(req: DocRequest, res: Response) {
-    const documents = await this.listDocuments.execute(this.getAuth(req).id);
+    const documents = await this.documents.list(this.ownerId(req));
     res.json({ documents });
   }
 
   async getById(req: DocRequest, res: Response) {
-    const document = await this.getDocument.execute(
-      paramId(req),
-      this.getAuth(req).id,
-    );
+    const document = await this.documents.getById(paramId(req), this.ownerId(req));
     res.json({ document });
   }
 
   async update(req: DocRequest, res: Response) {
-    const document = await this.updateDocument.execute(
-      paramId(req),
-      this.getAuth(req).id,
-      {
-        title:
-          req.body?.title !== undefined ? String(req.body.title) : undefined,
-        description:
-          req.body?.description !== undefined
-            ? String(req.body.description)
-            : undefined,
-        status:
-          req.body?.status !== undefined ? String(req.body.status) : undefined,
-        expiresAt: req.body?.expiresAt,
-        storedFilename: req.file?.filename,
-      },
-    );
+    const body = req.body as Record<string, unknown> | undefined;
+    const document = await this.documents.update(paramId(req), this.ownerId(req), {
+      title: body && "title" in body ? formField(body, "title") : undefined,
+      description:
+        body && "description" in body ? formField(body, "description") : undefined,
+      status: body && "status" in body ? formField(body, "status") : undefined,
+      expiresAt: body && "expiresAt" in body ? formField(body, "expiresAt") : undefined,
+      storedFilename: getDocumentFile(req)?.filename,
+    });
 
     res.json({ document });
   }
 
   async remove(req: DocRequest, res: Response) {
-    await this.deleteDocument.execute(paramId(req), this.getAuth(req).id);
+    await this.documents.remove(paramId(req), this.ownerId(req));
     res.status(204).send();
   }
 }
