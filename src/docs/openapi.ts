@@ -23,12 +23,6 @@ export const openApiSpec = {
         bearerFormat: "opaque",
         description: "Access token retornado em login/register/refresh",
       },
-      introspectApiKey: {
-        type: "apiKey",
-        in: "header",
-        name: "x-api-key",
-        description: "Valor de INTROSPECT_API_KEY no .env",
-      },
     },
     schemas: {
       Error: {
@@ -341,8 +335,8 @@ export const openApiSpec = {
       post: {
         tags: ["Auth"],
         summary: "Validar access token",
-        description: "Para outros microserviços validarem token via API.",
-        security: [{ introspectApiKey: [] }],
+        description:
+          "Microserviços enviam `{ token }` com o access token do usuário. Resposta `active: true/false`.",
         requestBody: {
           required: true,
           content: {
@@ -365,7 +359,7 @@ export const openApiSpec = {
               },
             },
           },
-          "401": { description: "API key inválida", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          "400": { description: "token ausente", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
         },
       },
     },

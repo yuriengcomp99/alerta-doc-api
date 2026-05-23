@@ -6,7 +6,6 @@ export const env = {
   databaseUrl: process.env.DATABASE_URL ?? "",
   accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN ?? "15m",
   refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN ?? "7d",
-  introspectApiKey: process.env.INTROSPECT_API_KEY ?? "",
   uploadDir: path.resolve(process.env.UPLOAD_DIR ?? "uploads"),
   maxFileSizeMb: Number(process.env.MAX_FILE_SIZE_MB ?? 10),
 };

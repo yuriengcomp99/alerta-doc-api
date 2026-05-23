@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { env } from "../../config/env.js";
 import { bearerToken } from "../../middleware/auth.js";
 import { AppError, asyncHandler } from "../../middleware/http.js";
 import type { AuthRequest } from "./types/auth.types.js";
@@ -39,13 +38,6 @@ export function authRoutes() {
 
   router.post(
     "/introspect",
-    (req, _res, next) => {
-      if (req.headers["x-api-key"] !== env.introspectApiKey) {
-        next(new AppError(401, "API key inválida", "INVALID_API_KEY"));
-        return;
-      }
-      next();
-    },
     asyncHandler((req, res) => controller.introspect(req, res)),
   );
 
