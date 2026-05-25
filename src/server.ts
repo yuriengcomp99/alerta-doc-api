@@ -20,7 +20,7 @@ app.use(errorHandler);
 
 const server = app.listen(env.port, () => {
   console.log(`[api] porta ${env.port}`);
-  console.log(`[api] swagger http://127.0.0.1:${env.port}/docs`);
+  console.log(`[api] swagger ${env.apiPublicUrl}/docs`);
 });
 
 async function shutdown() {

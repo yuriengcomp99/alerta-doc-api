@@ -7,7 +7,6 @@ API core do Alerta Doc — autenticação e gestão de documentos.
 - **Node.js** + **Express** (TypeScript)
 - **Prisma ORM** + **PostgreSQL**
 - **RabbitMQ** (só no Docker Compose — uso pelo cron job externo)
-- **Nginx** (reverse proxy)
 - **Docker Compose**
 
 ## Pré-requisitos
@@ -21,7 +20,7 @@ API core do Alerta Doc — autenticação e gestão de documentos.
 # 1. Variáveis de ambiente
 cp .env.example .env
 
-# 2. Subir infraestrutura (Postgres, RabbitMQ, API, Nginx)
+# 2. Subir infraestrutura (Postgres, RabbitMQ, API)
 docker compose up -d
 
 # 3. Migrações (com containers rodando ou Postgres local)
@@ -42,19 +41,22 @@ npm run prisma:migrate
 npm run dev
 ```
 
-A API fica em `http://localhost:3000`. Com Nginx: `http://localhost`.
+A API fica em `http://localhost:3000` (variável `API_PORT` no `.env`).
+
+Mapa de portas do ecossistema: [`../PORTS.md`](../PORTS.md).
 
 ## Swagger
 
-Documentação interativa (OpenAPI 3):
+Documentação interativa (OpenAPI 3). A URL base do spec vem de **`API_PUBLIC_URL`** no `.env` (nunca fixa no código — evita URLs antigas após deploy).
 
 | URL | Descrição |
 |-----|-----------|
-| `http://127.0.0.1:3000/docs` ou `/docs/` | UI Swagger |
-| `http://127.0.0.1:3000/docs/openapi.json` | Spec JSON |
-| `http://127.0.0.1/docs` | UI via Nginx |
+| `{API_PUBLIC_URL}/docs` | UI Swagger |
+| `{API_PUBLIC_URL}/docs/openapi.json` | Spec JSON (gerado em runtime) |
 
-No Swagger UI, use **Authorize** com o `accessToken` (Bearer) ou `x-api-key` no introspect.
+Exemplo local: `API_PUBLIC_URL=http://localhost:3000`. Em produção: `https://api.seudominio.com`.
+
+No Swagger UI, use **Authorize** com o `accessToken` (Bearer).
 
 Swagger usa `swagger-ui-express` padrão. No Docker, após `npm install` local, rode:
 
@@ -91,8 +93,7 @@ Tokens são **opacos** e persistidos como hash em `auth_sessions` — adequado p
 | postgres | 5432 | Banco de dados |
 | rabbitmq | 5672 | AMQP |
 | rabbitmq (management) | 15672 | UI (`guest` / `guest`) |
-| api | 3000 (interno) | API Express |
-| nginx | 80 | Proxy reverso |
+| api | **3000** | API Express (`API_PORT`) |
 
 ## Scripts
 

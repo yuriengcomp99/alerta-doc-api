@@ -1,4 +1,5 @@
-export const openApiSpec = {
+/** Definição OpenAPI sem `servers` — preenchida em runtime via `API_PUBLIC_URL`. */
+export const openApiDefinition = {
   openapi: "3.0.3",
   info: {
     title: "Alerta Doc API",
@@ -6,10 +7,6 @@ export const openApiSpec = {
       "API core — autenticação e documentos. Tokens opacos (access 15m, refresh 7d) persistidos em `auth_sessions`.",
     version: "0.1.0",
   },
-  servers: [
-    { url: "http://127.0.0.1:3000", description: "API direta" },
-    { url: "http://127.0.0.1", description: "Via Nginx (porta 80)" },
-  ],
   tags: [
     { name: "Health", description: "Health check" },
     { name: "Auth", description: "Autenticação" },
